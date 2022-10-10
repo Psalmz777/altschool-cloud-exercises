@@ -1,4 +1,4 @@
-#Attached screenshots for Exercise 1 and 2 
+#Attached screenshots for Exercise 3 and 4 
 ##Attached screenshots for contents of etc/passwd,etc/group and etc/sudoers.
 ![etc/passwd](./images/Screenshot%20(4).png)
 ![etc/group](./images/Screenshot%20(5).png)
