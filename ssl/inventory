@@ -1,0 +1,2 @@
+[servers]
+46.101.76.197 ansible_user=root
