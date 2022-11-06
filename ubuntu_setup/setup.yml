@@ -1,0 +1,64 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/var.yml
+
+  tasks:
+    - name: Install Prerequisites
+      apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+
+# Install Packages
+    - name: Update apt
+      apt: update_cache=yes
+
+    - name: Install required system packages
+      apt: name={{ sys_packages }} state=latest
+   
+# UFW Setup
+    - name: UFW - Allow Apache
+      ufw:
+        rule: allow
+        name: Apache
+
+    - name: UFW - Allow Apache Full
+      ufw:
+        rule: allow
+        name: Apache Full
+
+    - name: UFW - Allow SSH connections
+      ufw:
+        rule: allow
+        name: OpenSSH
+   
+    - name: UFW - Allow tcp port 22
+      ufw:
+        rule: allow 
+        port: 22
+        proto: tcp
+
+    - name: UFW - Allow port 443
+      ufw:
+        rule: allow
+        port: 443
+        
+    - name: UFW - Allow port 853
+      ufw:
+        rule: allow 
+        port: 853
+
+    - name: UFW - Allow port 3306
+      ufw:
+        rule: allow 
+        port: 3306
+
+    - name: UFW - Allow port 5432
+      ufw:
+        rule: allow
+        port: 5432
+
+    - name: Script to install Postgresql
+      ansible.builtin.script: /home/vagrant/ansible_exam/ubuntu_setup/postgresql.sh
+      args:
+        chdir: /root
+      tags: pq
