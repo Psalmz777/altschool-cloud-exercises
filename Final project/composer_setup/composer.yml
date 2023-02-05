@@ -1,0 +1,187 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/var.yml
+
+  tasks:
+    - name: Download and install Composer
+      shell: curl -sS https://getcomposer.org/installer | php
+      args:
+        chdir: /usr/src/
+        creates: /usr/local/bin/composer
+        warn: false
+
+    - name: Add Composer to global path
+      copy:
+        dest: /usr/local/bin/composer
+        group: root
+        mode: '0755'
+        owner: root
+        src: /usr/src/composer.phar
+        remote_src: yes
+
+    - name: Clone The Laravel Repo
+      git: 
+        repo: https://github.com/f1amy/laravel-realworld-example-app.git
+        dest: /var/www/laravelApp
+      tags: nm
+
+    - name: Give the project folder neccessary permissions
+      file:
+        path: /var/www/laravelApp
+        state: directory
+        recurse: yes
+        owner: root
+        group: root
+      tags: nm
+
+    - name: Change Ownership To be Assigned to Web Servers
+      file:
+        path: /var/www/laravelApp
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+      tags: nm
+   
+    - name: Change the Mode of the Storage Folder
+      file:
+        path: /var/www/laravelApp/storage
+        state: directory
+        recurse: yes
+        mode: '0775'
+      tags: mv
+
+    - name: Change the Mode of the Cache Folder
+      file:
+        path: /var/www/laravelApp/bootstrap/cache
+        state: directory
+        recurse: yes
+        mode: '0775'
+      tags: mv
+
+    - name: Give Execute Permission for Composer
+      file:
+        path: /usr/local/bin/composer
+        mode: u+x
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /var/www/laravelApp
+        state: directory
+        recurse: yes
+        owner: psalmz
+        group: psalmz
+        mode: '775'
+      tags: nm
+
+    - name: Update Apt Repository
+      apt: update_cache=yes cache_valid_time=3600 
+    - name: Upgrade The Apt Repository
+      apt: upgrade=yes update_cache=yes cache_valid_time=3600
+      tags: nm
+
+
+    - name: Download and installs all composer libs and dependencies outlined in the /var/www/laravelApp/composer.lock
+      composer: 
+        command: install 
+        working_dir: /var/www/laravelApp
+      environment:
+        COMPOSER_ALLOW_SUPERUSER: "1"
+    
+    - name: Change Ownership Back to Web Servers
+      file:
+        path: /var/www/laravelApp
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+      tags: mv     
+
+    - name: Copy .env
+      copy:
+        src: .env
+        dest: /var/www/laravelApp
+
+        mode: '0775'        
+
+    - name: Change Ownership to Web Servers
+      file:
+        path: /var/www/laravelApp/.env
+        state: file
+        owner: www-data
+        group: www-data
+
+    - name: Set the App Key in.env file
+      command: php /var/www/laravelApp/artisan key:generate
+   
+    - name: Give Application Speed Boost
+      command: php /var/www/laravelApp/artisan config:cache
+     
+    - name: Install MySQL Database
+      command: php /var/www/laravelApp/artisan migrate:fresh
+
+    - name: Uncomment the route so the default page opens
+      copy:
+        src: web.php
+        dest: /var/www/laravelApp/routes
+        mode: '0775'
+ 
+    - name: Change the Mode of  web.php file into the www-data
+      file:
+        path: /var/www/laravelApp/routes/web.php
+        state: file
+        owner: www-data
+        group: www-data
+        mode: '0775'
+
+    - name: Create laravelApp.conf
+      copy:
+        src: laravelApp.conf
+        dest: /etc/apache2/sites-available
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Copy .htaccess to Display the public files
+      copy:
+        src: .htaccess
+        dest: /var/www/laravelApp
+
+    - name: Change ownership of the .htaccess file to the www-data
+      file:
+        path: /var/www/laravelApp/.htaccess
+        state: file
+        owner: www-data
+        group: www-data
+        mode: '0775'
+
+    - name: Disable the default apache web page
+      command: a2dissite 000-default.conf
+     
+    - name: Restart apache
+      service:
+         name: apache2
+         state: restarted
+    
+    - name: Enable Laravel Application Configurations To Display as Web Page
+      command: a2ensite laravelApp.conf
+
+    - name: Restart apache
+      service:
+         name: apache2   
+
+    - name: Enable Apache Rewrite Rules 
+      command: a2enmod rewrite
+      tags: vm
+
+    - name: Restart apache
+      service:
+         name: apache2
+         state: restarted
+      tags: vm
+
+    - name: Populate database
+      command: php /var/www/laravelApp/artisan db:seed 
+      tags: vb

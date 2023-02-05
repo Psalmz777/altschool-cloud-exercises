@@ -1,0 +1,26 @@
+LINUX COMMANDS AND HOW TO USE THEM
+1. ip addr show 
+   This displays IP adresses and all network interfaces 
+2. df -h
+   Displays free space on mounted system
+3. ls -a -C -h
+    lists content of a directory
+4. du -s
+     Shows disk usage
+5. free -m
+     Displays free and used system memory
+6. $ shell
+     Displays current shell
+7. Screen -list 
+     Shows the current session
+8. hostname 
+     Displays system host name
+9. last reboot 
+     Shows sysytem reboot history
+10. w
+     Displays currently logged in users in the system
+11. lshw 
+     Dispalys information about system hardware configuration
+12. last 
+     Shows the last login in the sysytem
+
