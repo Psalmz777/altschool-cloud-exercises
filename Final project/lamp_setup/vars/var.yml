@@ -1,0 +1,14 @@
+---
+#System Settings
+php_modules: [ 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip', ]
+
+#MySQL Settings
+mysql_root_password: "vip77777"
+mysql_db: "laravel"
+mysql_user: "samantha"
+mysql_password: "password"
+
+#HTTP Settings
+http_host: "samanthagloria.me"
+http_conf: "samanthagloria.me.conf"
+http_port: "80"

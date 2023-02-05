@@ -1,0 +1,15 @@
+---
+- hosts: all 
+  vars_files:
+    - vars/var.yml
+
+  tasks:
+    - name : Install Python Package
+      apt: name=python3 update_cache=yes state=latest
+ 
+    - name : Install Let's Encrypt Package
+      apt: name=python3-certbot-apache update_cache=yes state=latest
+ 
+    - name: Create and Install Cert Using Plugin
+      command: "certbot --{{ certbot_plugin }} -d  {{ certbot_site_name }} -m {{ certbot_mail_address }} --agree-tos --noninteractive --redirect"
+
