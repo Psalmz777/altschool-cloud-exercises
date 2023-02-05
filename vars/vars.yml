@@ -1,0 +1,4 @@
+http_host: "samanthagloria.me"
+http_conf: "samanthagloria.me.conf"
+http_port: "80"
+disable_default: true

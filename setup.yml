@@ -1,0 +1,40 @@
+---
+- name: Setting up Apache Server
+  hosts: all
+  become: true
+  become_method: sudo
+
+
+  tasks:
+    - name: Update all packages to their latest version
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+        update_cache: yes
+
+    - name: Install Apache server
+      ansible.builtin.apt:
+        name: 
+        - apache2
+        state: latest
+
+    - name: "Remove useless packages from the cache & dependencies that are no longer required"
+      ansible.builtin.apt:
+        autoclean: yes
+        autoremove: yes
+
+    - name: Start/restart service apache2, if not started
+      ansible.builtin.systemd:
+        name: apache2
+        enabled: yes
+        state: restarted
+
+    - name: set timezone to Africa/Lagos
+      timezone:
+        name: Africa/Kampala
+   
+    - name:copy my "index.html page to the host server[remote]
+      ansible.builtin.copy:
+        src: /home/vagrant/ansible_tf/index.html
+        dest:/var/www/html/index.html
+        
